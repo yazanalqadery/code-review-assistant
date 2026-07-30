@@ -28,3 +28,13 @@ class SubmissionOut(BaseModel):
     filename: str | None
     created_at: datetime
     review: ReviewOut | None
+
+
+class UserCreate(BaseModel):
+    username: str
+
+
+class UserOut(BaseModel):
+    id: int
+    username: str
+    created_at: datetime
