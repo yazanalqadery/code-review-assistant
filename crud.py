@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 
 from models import Review, Submission, User
-from schemas import SubmissionCreate, UserCreate, UserOut
+from schemas import SubmissionCreate, UserCreate
 
 
 def create_submission(db: Session, submission: SubmissionCreate) -> Submission:

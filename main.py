@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 
 import crud
 from database import Base, engine, get_db
-from schemas import SubmissionCreate, SubmissionOut, UserOut, UserCreate
+from schemas import SubmissionCreate, SubmissionOut, UserCreate, UserOut
 
 Base.metadata.create_all(bind=engine)
 
