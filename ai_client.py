@@ -20,3 +20,8 @@ Code:
             messages=[{"role": "user", "content": prompt}],
         )
     return response.choices[0].message.content
+
+
+# if __name__ == "__main__":
+#     result = generate_review("def add(a, b):\n    return a+b", "python")
+#     print(result)

@@ -2,6 +2,7 @@ from fastapi import Depends, FastAPI, HTTPException, status
 from sqlalchemy.orm import Session
 
 import crud
+from ai_client import generate_review
 from database import Base, engine, get_db
 from schemas import SubmissionCreate, SubmissionOut, UserCreate, UserOut
 
@@ -12,7 +13,13 @@ app = FastAPI()
 
 @app.post("/api/submissions", response_model=SubmissionOut)
 def create_submission(submission: SubmissionCreate, db: Session = Depends(get_db)):  # noqa: B008
-    return crud.create_submission(db, submission)
+    db_submission = crud.create_submission(db, submission)
+    feedback = generate_review(db_submission.code, db_submission.language)
+    crud.create_review(db, db_submission.id, feedback)
+    db.refresh(
+        db_submission
+    )  # Refresh the submission to include the newly created review
+    return db_submission
 
 
 @app.get("/api/submissions/{submission_id}", response_model=SubmissionOut)
