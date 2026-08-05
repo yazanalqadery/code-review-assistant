@@ -14,7 +14,17 @@ app = FastAPI()
 @app.post("/api/submissions", response_model=SubmissionOut)
 def create_submission(submission: SubmissionCreate, db: Session = Depends(get_db)):  # noqa: B008
     db_submission = crud.create_submission(db, submission)
-    feedback = generate_review(db_submission.code, db_submission.language)
+    try:
+        feedback = generate_review(db_submission.code, db_submission.language)
+    except RuntimeError as e:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail={
+                "error": "Submission was saved, but AI review generation failed.",
+                "submission_id": db_submission.id,
+                "reason": str(e),
+            },
+        )
     crud.create_review(db, db_submission.id, feedback)
     db.refresh(
         db_submission
