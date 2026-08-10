@@ -12,10 +12,13 @@ app = FastAPI()
 
 
 @app.post("/api/submissions", response_model=SubmissionOut)
-def create_submission(submission: SubmissionCreate, db: Session = Depends(get_db)):  # noqa: B008
+async def create_submission(
+    submission: SubmissionCreate,
+    db: Session = Depends(get_db),  # noqa: B008
+):
     db_submission = crud.create_submission(db, submission)
     try:
-        feedback = generate_review(db_submission.code, db_submission.language)
+        feedback = await generate_review(db_submission.code, db_submission.language)
     except RuntimeError as e:
         raise HTTPException(
             status_code=status.HTTP_502_BAD_GATEWAY,
