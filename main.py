@@ -66,3 +66,37 @@ def get_user(user_id: int, db: Session = Depends(get_db)):  # noqa: B008
             status_code=status.HTTP_404_NOT_FOUND, detail={"error": "No user found"}
         )
     return user
+
+
+@app.post("/api/submissions/{submission_id}/review", response_model=SubmissionOut)
+async def create_review_for_submission(
+    db: Session = Depends(get_db),  # noqa: B008
+    submission_id: int = 0,
+):
+    submission = crud.get_submission(db, submission_id)
+    if submission is None:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail={"error": "No submission found"},
+        )
+
+    if submission.review is not None:
+        raise HTTPException(
+            status_code=status.HTTP_409_CONFLICT,
+            detail={"error": "Review already exists for this submission"},
+        )
+
+    try:
+        feedback = await generate_review(submission.code, submission.language)
+    except RuntimeError as e:
+        raise HTTPException(
+            status_code=status.HTTP_502_BAD_GATEWAY,
+            detail={
+                "error": "AI review generation failed.",
+                "submission_id": submission.id,
+                "reason": str(e),
+            },
+        )
+    crud.create_review(db, submission.id, feedback)
+    db.refresh(submission)  # Refresh the submission to include the newly created review
+    return submission
