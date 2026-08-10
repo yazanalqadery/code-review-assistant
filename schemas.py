@@ -1,13 +1,13 @@
 from datetime import datetime
 
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 
 class SubmissionCreate(BaseModel):
     user_id: int
-    code: str
-    language: str
-    filename: str | None = None
+    code: str = Field(..., min_length=1, max_length=10000)
+    language: str = Field(..., min_length=1, max_length=50)
+    filename: str | None = Field(None, max_length=255)
 
 
 class ReviewOut(BaseModel):
@@ -31,7 +31,7 @@ class SubmissionOut(BaseModel):
 
 
 class UserCreate(BaseModel):
-    username: str
+    username: str = Field(..., min_length=1, max_length=50)
 
 
 class UserOut(BaseModel):
