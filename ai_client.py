@@ -18,7 +18,7 @@ Code:
         async with OpenRouter(api_key=os.getenv("OPENROUTER_API_KEY")) as client:
             response = await asyncio.wait_for(
                 client.chat.send_async(
-                    model="gpt-4o-mini",
+                    model="openai/gpt-4o-mini",
                     messages=[{"role": "user", "content": prompt}],
                 ),
                 timeout=30.0,
