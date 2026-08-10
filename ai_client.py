@@ -31,12 +31,12 @@ Code:
         raise RuntimeError(
             "Rate limit exceeded by the AI Provider. Please try again later."
         ) from e
-    except errors.OpenRouterError as e:
-        raise RuntimeError(f"AI Provider API error: {e}") from e
     except errors.UnauthorizedResponseError as e:
         raise RuntimeError(
             "Invalid API key. Please check your OPENROUTER_API_KEY."
         ) from e
+    except errors.OpenRouterError as e:
+        raise RuntimeError(f"AI Provider API error: {e}") from e
     except Exception as e:
         raise RuntimeError(f"Error generating review: {e}") from e
 
