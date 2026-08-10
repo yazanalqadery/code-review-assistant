@@ -15,7 +15,7 @@ Code:
 {code}"""
     try:
         async with OpenRouter(api_key=os.getenv("OPENROUTER_API_KEY")) as client:
-            response = await client.chat.send(
+            response = await client.chat.send_async(
                 model="gpt-4o-mini",
                 messages=[{"role": "user", "content": prompt}],
             )
@@ -28,5 +28,7 @@ Code:
 
 
 if __name__ == "__main__":
-    result = generate_review("def add(a, b):\n    return a+b", "python")
+    import asyncio
+
+    result = asyncio.run(generate_review("def add(a, b):\n    return a+b", "python"))
     print(result)
