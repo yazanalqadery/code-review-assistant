@@ -1,3 +1,4 @@
+import asyncio
 import os
 
 from dotenv import load_dotenv
@@ -15,20 +16,33 @@ Code:
 {code}"""
     try:
         async with OpenRouter(api_key=os.getenv("OPENROUTER_API_KEY")) as client:
-            response = await client.chat.send_async(
-                model="gpt-4o-mini",
-                messages=[{"role": "user", "content": prompt}],
+            response = await asyncio.wait_for(
+                client.chat.send_async(
+                    model="gpt-4o-mini",
+                    messages=[{"role": "user", "content": prompt}],
+                ),
+                timeout=30.0,
             )
-    except errors.UnauthorizedResponseError:
-        raise RuntimeError("Invalid API key. Please check your OPENROUTER_API_KEY.")
-    except Exception as e:  # noqa: BLE001
-        raise RuntimeError(f"Error generating review: {e}")
+    except asyncio.TimeoutError as e:  # noqa: UP041
+        raise RuntimeError(
+            "AI review generation timed out after 30 seconds. Please try again later."
+        ) from e
+    except errors.RateLimitError as e:
+        raise RuntimeError(
+            "Rate limit exceeded by the AI Provider. Please try again later."
+        ) from e
+    except errors.OpenRouterError as e:
+        raise RuntimeError(f"AI Provider API error: {e}") from e
+    except errors.UnauthorizedResponseError as e:
+        raise RuntimeError(
+            "Invalid API key. Please check your OPENROUTER_API_KEY."
+        ) from e
+    except Exception as e:
+        raise RuntimeError(f"Error generating review: {e}") from e
 
     return response.choices[0].message.content
 
 
-if __name__ == "__main__":
-    import asyncio
-
-    result = asyncio.run(generate_review("def add(a, b):\n    return a+b", "python"))
-    print(result)
+# if __name__ == "__main__":
+#     result = asyncio.run(generate_review("def add(a, b):\n    return a+b", "python"))
+#     print(result)
