@@ -27,7 +27,7 @@ async def create_submission(
                 "submission_id": db_submission.id,
                 "reason": str(e),
             },
-        )
+        ) from e
     crud.create_review(db, db_submission.id, feedback)
     db.refresh(
         db_submission
@@ -96,7 +96,7 @@ async def create_review_for_submission(
                 "submission_id": submission.id,
                 "reason": str(e),
             },
-        )
+        ) from e
     crud.create_review(db, submission.id, feedback)
     db.refresh(submission)  # Refresh the submission to include the newly created review
     return submission
