@@ -70,8 +70,8 @@ def get_user(user_id: int, db: Session = Depends(get_db)):  # noqa: B008
 
 @app.post("/api/submissions/{submission_id}/review", response_model=SubmissionOut)
 async def create_review_for_submission(
+    submission_id: int,
     db: Session = Depends(get_db),  # noqa: B008
-    submission_id: int = 0,
 ):
     submission = crud.get_submission(db, submission_id)
     if submission is None:
